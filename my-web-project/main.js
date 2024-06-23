@@ -30,40 +30,37 @@ inputf.addEventListener('keydown',function (e) {
         
     }
 })
-// remb.addEventListener('click',function (e) {
-//     snum=toString(num)
-//    let elem=document.querySelectorAll('.item')
-//    console.log(elem);
-//    console.log(num);
-//     elem[elem.length-1].remove()
-//    num--;
-    
-// });
 document.addEventListener('click',function (e) {
     if(e.target.className=='rem')
     {
-        console.log(e.target.parentNode);
         e.target.parentNode.remove()
     }
 })
+
+function addPropertyOnBlur(obj,nid)
+{
+    text=obj.value
+    spann=document.createElement('span')
+    spann.innerText=text
+    spann.id=`${id}`
+    spann.className='spa'
+    obj.parentNode.insertBefore(spann, obj);
+    obj.remove()
+}
+
 document.addEventListener('click',function (e) 
 {
     if(e.target.className=='edi')
     {
         nid=e.target.id.replace(/[^0-9]/g,"")
         id=nid+'s'
-        spann=document.getElementById(id)
+        spann=document.getElementById(id) 
         txt=spann.innerText
-        console.log(spann);
-        spann.innerHTML=`<input onblur='spanReset(this,spann)'value='${txt}'id='${nid+'i'}' />`;
-        document.getElementById(nid+'i').focus();
+        inp=document.createElement('input')
+        inp.value=txt
+        spann.parentNode.insertBefore(inp, e.target);
+        spann.remove()
+        inp.setAttribute('onblur', 'addPropertyOnBlur(this,nid)');
+        inp.focus()
     }
 })
-
-function spanReset(e,obj) {
-    let txt = e.value;
-    let element = obj
-    element.innerHTML = `<span > ${txt} </span>`;
-  }
-
-
