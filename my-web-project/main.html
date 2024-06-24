@@ -52,7 +52,7 @@ function addPropertyOnBlur(obj, nid) {
     let text = obj.value.trim(); // Trim whitespace from input
     let spann = document.createElement('span');
     spann.innerText = text;
-    spann.id = nid + 's';
+    spann.id = 'text-'+nid;
     spann.className = 'spa flex-1'; // Tailwind classes
     obj.parentNode.insertBefore(spann, obj);
     obj.remove();
@@ -95,9 +95,10 @@ function addItemToList(input) {
 document.addEventListener('click', function(e) {
     if (e.target.className.includes('edi')) {
         let nid = e.target.id.replace(/[^0-9]/g, "");
-        let id = nid + 's';
+        let id = 'text-'+nid;
         let spann = document.getElementById(id);
-        let txt = spann.innerText.trim(); // Trim whitespace from text
+        let txt = spann.innerText.trim();
+        console.log(txt); // Trim whitespace from text
         let inp = document.createElement('input');
         inp.value = txt;
         spann.parentNode.insertBefore(inp, e.target);
