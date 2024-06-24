@@ -8,25 +8,161 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="main.css"> <!-- This can include your custom styles if needed -->
-    <script src="main.js" defer></script>
     <title>To Do List</title>
 </head>
 <body class="bg-gray-100 px-4 py-8">
+    <button onclick="downloadText()" class="edi bg-blue-500 text-white px-2 py-1 rounded mr-2">Download To do List</button>
+    <input type="file" id="fileInput" class="bg-gray-200 px-4 py-2 rounded" accept=".txt" onchange="loadTextFile()">
 
     <div class="max-w-md mx-auto">
-        <h1 class="text-2xl font-bold mb-4">To Do List</h1>
-
+        <h1 class="text-3xl font-bold mb-4 text-center">To Do List</h1>
+        
         <div class="flex space-x-2 mb-4">
-            <input id="input" type="text" class="flex-1 border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-            <button id="add" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md">Add</button>
+            <input id="input" placeholder="Press Enter to add" class="flex-1 border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
         </div>
 
         <div id="list" class="space-y-2">
             <!-- Your list items will be dynamically added here -->
         </div>
     </div>
-
-    <!-- Optional JavaScript at the end of the body for better performance -->
-    <script src="main.js" defer></script>
 </body>
+<script>
+    var inputf = document.querySelector('#input');
+var num = 1;
+
+inputf.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.defaultPrevented) {
+        e.preventDefault();
+        var input = inputf.value.trim(); // Trim whitespace from input
+        if (input === "") 
+            alert("Error: Input cannot be empty");
+        else 
+            addItemToList(input);
+        
+    }
+});
+
+document.addEventListener('click', function(e) {
+    if (e.target.className.includes('rem')) {
+        e.target.parentNode.remove();
+    }
+});
+
+function addPropertyOnBlur(obj, nid) {
+    let text = obj.value.trim(); // Trim whitespace from input
+    let spann = document.createElement('span');
+    spann.innerText = text;
+    spann.id = nid + 's';
+    spann.className = 'spa flex-1'; // Tailwind classes
+    obj.parentNode.insertBefore(spann, obj);
+    obj.remove();
+}
+function addItemToList(input) {
+            // Create new item div
+            let newitem = document.createElement('div');
+            newitem.className = 'item flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow mb-4'; // Tailwind classes
+            newitem.id = 'item-' + num;
+
+            // Create text span
+            let text = document.createElement('span');
+            text.className = 'spa flex-1 whitespace-normal'; // Tailwind classes
+            text.id = 'text-' + num;
+            text.innerText = input;
+
+            // Create edit button
+            let neweditb = document.createElement('button');
+            neweditb.className = 'edi bg-blue-500 text-white px-2 py-1 rounded mr-2'; // Tailwind classes
+            neweditb.id = 'edit-' + num;
+            neweditb.innerText = 'edit';
+
+            // Create remove button
+            let newremb = document.createElement('button');
+            newremb.className = 'rem bg-red-500 text-white px-2 py-1 rounded'; // Tailwind classes
+            newremb.id = 'remove-' + num;
+            newremb.innerText = 'remove';
+
+            // Append elements to newitem div
+            newitem.appendChild(text);
+            newitem.appendChild(neweditb);
+            newitem.appendChild(newremb);
+
+            document.getElementById('list').appendChild(newitem);
+
+            num++;
+
+            inputf.value = '';
+        }
+document.addEventListener('click', function(e) {
+    if (e.target.className.includes('edi')) {
+        let nid = e.target.id.replace(/[^0-9]/g, "");
+        let id = nid + 's';
+        let spann = document.getElementById(id);
+        let txt = spann.innerText.trim(); // Trim whitespace from text
+        let inp = document.createElement('input');
+        inp.value = txt;
+        spann.parentNode.insertBefore(inp, e.target);
+        spann.remove();
+        inp.className = 'border border-gray-300 p-2 rounded w-full'; // Tailwind classes
+        inp.setAttribute('onblur', `addPropertyOnBlur(this, ${nid})`);
+        inp.focus();
+    }
+});
+function downloadText() {
+            // Collect all items in the list
+            let items = document.querySelectorAll('#list .item');
+            let textToDownload = '';
+
+            // Iterate through each item and collect text
+            items.forEach((item, index) => {
+                let textElement = item.querySelector('.spa');
+                let text = textElement.innerText.trim(); // Trim whitespace from text
+
+                // Append text with newline, except for the last item
+                if (index < items.length - 1) {
+                    textToDownload += text + '\n';
+                } else {
+                    textToDownload += text;
+                }
+            });
+
+            // Create a Blob containing the text
+            const blob = new Blob([textToDownload], { type: 'text/plain' });
+            
+            // Create a temporary URL for the Blob
+            const url = URL.createObjectURL(blob);
+            
+            // Create a link element to trigger the download
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'todo_list.txt'; // Filename to be downloaded
+            
+            // Append the link to the body
+            document.body.appendChild(a);
+            
+            // Trigger the download
+            a.click();
+            
+            // Clean up
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        function loadTextFile() {
+            const input = document.getElementById('fileInput');
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const text = e.target.result;
+                    const items = text.split('\n');
+                    items.forEach((item) => {
+                        item = item.trim(); // Trim whitespace from item
+                        if (item) {
+                            addItemToList(item);
+                        }
+                    });
+                };
+                reader.readAsText(file);
+            }
+        }
+</script>
 </html>
